@@ -29,14 +29,15 @@ def cluster_sequences(sequences, identity_threshold):
     
     return clusters
 
-def read_fasta(file):
+def read_fasta(uploaded_file):
     """Read sequences from a FASTA or text file."""
     sequences = {}
     seq_id = None
     seq = []
 
-    for line in file:
-        line = line.strip()
+    # Read the uploaded file as text
+    for line in uploaded_file:
+        line = line.decode('utf-8').strip()  # Decode bytes to string and strip whitespace
         if line.startswith('>'):
             if seq_id is not None:
                 sequences[seq_id] = ''.join(seq)
