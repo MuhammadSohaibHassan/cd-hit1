@@ -16,26 +16,17 @@ def cluster_sequences(sequences, identity_threshold):
     
     for seq_id, seq in sequences.items():
         found_cluster = False
-        
-        # Update the progress bar
-        progress_bar = st.progress(0)
-        
-        for i, cluster in enumerate(clusters):
-            representative_seq = cluster[0]
+
+        for cluster in clusters:
+            representative_seq = cluster[0][1]  # Get the sequence from the first item in the cluster
             if sequence_identity(seq, representative_seq) >= identity_threshold:
-                cluster.append(seq)  # Add to the existing cluster
+                cluster.append((seq_id, seq))  # Add the sequence ID and seq to the existing cluster
                 found_cluster = True
                 break
-            
-            # Update progress bar
-            progress_bar.progress((i + 1) / len(clusters))
 
         if not found_cluster:
-            clusters.append([seq])
-        
-        # Update progress bar for the remaining sequences
-        progress_bar.progress(1.0)  # Complete progress
-
+            clusters.append([(seq_id, seq)])  # Store as a tuple (seq_id, seq)
+    
     return clusters
 
 def read_fasta(uploaded_file):
@@ -83,9 +74,8 @@ def main():
 
             for i, cluster in enumerate(clusters):
                 st.write(f"### Cluster {i + 1}:")
-                for seq in cluster:
-                    match_percentage = sequence_identity(cluster[0], seq) * 100  # Calculate match percentage
-                    st.write(f" - `{seq[:50]}...` (Match: **{match_percentage:.2f}%**)")  # Display first 50 chars and match percentage
+                cluster_ids = [seq_id for seq_id, _ in cluster]  # Get only sequence IDs
+                st.write(" - " + ", ".join(cluster_ids))  # Display only sequence IDs
         else:
             st.warning("No sequences found in the uploaded file.")
 
